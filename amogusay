@@ -1,0 +1,93 @@
+#!/bin/bash
+    
+#defining global variables
+str=$@
+len=${#str}
+stc=($@)
+stclen=${#@}
+offset=$((len + 2))
+newstr=''
+
+function long {
+    # adding a line count to allow for formatting
+    line=''
+    for ((i=0; i < $stclen; i++))
+    do
+        newstr=$newstr${stc[i]}
+        # deleting words that take the character length over 39 for space
+        if [[ ${#newstr} -ge 40 ]]
+        then
+            line=$((line += 1))
+            word=${stc[i]}
+            for ((j=0; j < ${#word}; j++))
+            do
+                newstr=$(echo $newstr | sed 's/.$//')
+            done
+            edges
+            if [[ $line -eq 1 ]]
+            then
+                echo "/ $newstr\\"
+            else
+                echo "| $newstr|"
+            fi
+            # making the next line begin with the word that was just deleted
+            newstr=${stc[i]}
+        fi
+        # adding spaces between words
+        newstr="$newstr "
+    done
+}
+
+function edges {
+    # adds whitespace to the end of lines for a uniform box around the text
+    while [[ ${#newstr} -lt 40 ]]
+    do
+        newstr="$newstr "
+    done
+}
+
+echo -n " "
+
+if [[ $offset -gt 41 ]]
+then
+    echo "_________________________________________"
+else
+    for ((i=0; i < $offset; i++))
+    do
+        echo -n "_"
+    done
+    echo ''
+fi
+
+if [[ $len -ge 40 ]]
+then 
+    offset=41
+    long
+    edges
+    echo "\ $newstr/"
+else   
+    echo "< $@ >"
+fi
+
+echo -n " "
+
+for ((i=0; i < $offset; i++))
+do
+    echo -n "-"
+done
+
+echo "
+        \     ____
+         \   /__  \ _
+            (___)  | |
+             |  _  |_|
+             |_| |_|
+"
+
+#       ____       
+#    _ /  __\      
+#   | |  (___)   
+#   |_|  _  |    
+#     |_| |_| 
+
+# ~iosj 2022
